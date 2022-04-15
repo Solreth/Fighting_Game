@@ -8,12 +8,9 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.9;
 
-//currently shared by both players, needs split
-let lastTime = 0;
-
-class Sprite {
-  // fires everytime we create a new object from the sprite class
-  constructor({ position, velocity, color = "green", offset }) {
+class PlayerCharacter {
+  // fires everytime we create a new object from the PlayerCharacter class
+  constructor({ position, velocity, color = "green", offset, lastTime = 0 }) {
     this.position = position;
     this.velocity = velocity;
     this.height = 140;
@@ -21,7 +18,7 @@ class Sprite {
     this.color = color;
     this.lastKey;
     this.doubleJump = false;
-    this.attackBox = {
+    this.basicAttackBox = {
       position: {
         x: this.position.x,
         y: this.position.y,
@@ -32,44 +29,61 @@ class Sprite {
     };
     this.isAttacking;
   }
-
+  // Creates PlayerCharacter
   create() {
     context.fillStyle = this.color;
     context.fillRect(this.position.x, this.position.y, 70, 140);
 
-    //attackBox
+    //basicAttackPosition/color
     if (this.isAttacking) {
       context.fillStyle = "orange";
       context.fillRect(
-        this.attackBox.position.x,
-        this.attackBox.position.y,
-        this.attackBox.width,
-        this.attackBox.height
+        this.basicAttackBox.position.x,
+        this.basicAttackBox.position.y,
+        this.basicAttackBox.width,
+        this.basicAttackBox.height
       );
     }
   }
+
   update() {
-    this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-    this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
+    this.basicAttackBox.position.x =
+      this.position.x + this.basicAttackBox.offset.x;
+
+    this.basicAttackBox.position.y =
+      this.position.y + this.basicAttackBox.offset.y;
+
     this.create();
+
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
+
     let onTheGround =
       this.position.y + this.height + this.velocity.y >= canvas.height;
+
     // if player position+height+velocity greater than canvas bottom, stop velocity. Else apply gravity+velocity (fall speed increases incrementally over time)
     if (onTheGround) {
       this.doubleJump = false;
       this.velocity.y = 0;
     } else this.velocity.y += gravity;
+
+    let againstBorder =
+      this.position.x + this.velocity.x < 0 ||
+      this.position.x + this.width + this.velocity.x >= canvas.width;
+
+    //console.log(againstBorder);
+
+    if (againstBorder) {
+    }
   }
 
   attack() {
     //uses closure with lastTime to set a mandatory wait period between attacks made
     const now = new Date().getTime(); // Time in milliseconds
-    if (now - lastTime < 925) {
+    if (now - this.lastTime < 925) {
       return;
     } else {
-      lastTime = now;
+      this.lastTime = now;
     }
     //initiates the hitbox
     this.isAttacking = true;
@@ -80,7 +94,7 @@ class Sprite {
   }
 }
 
-const player1 = new Sprite({
+const player1 = new PlayerCharacter({
   position: {
     x: 150,
     y: 0,
@@ -92,11 +106,11 @@ const player1 = new Sprite({
   color: "Blue",
   offset: {
     x: 0,
-    y: 0,
+    y: 30,
   },
 });
 
-const player2 = new Sprite({
+const player2 = new PlayerCharacter({
   position: {
     x: 804,
     y: 0,
@@ -107,7 +121,7 @@ const player2 = new Sprite({
   },
   offset: {
     x: -70,
-    y: 0,
+    y: 30,
   },
 });
 
@@ -139,12 +153,12 @@ const keys = {
 
 function collision({ attacker, victim }) {
   return (
-    attacker.attackBox.position.x + attacker.attackBox.width >=
+    attacker.basicAttackBox.position.x + attacker.basicAttackBox.width >=
       victim.position.x &&
-    attacker.attackBox.position.x <= victim.position.x + victim.width &&
-    attacker.attackBox.position.y + attacker.attackBox.height >=
+    attacker.basicAttackBox.position.x <= victim.position.x + victim.width &&
+    attacker.basicAttackBox.position.y + attacker.basicAttackBox.height >=
       victim.position.y &&
-    attacker.attackBox.position.y <= victim.position.y + victim.height
+    attacker.basicAttackBox.position.y <= victim.position.y + victim.height
   );
 }
 
@@ -176,14 +190,30 @@ function animate() {
     player2.velocity.x = 6;
   }
 
+  //hitbox position relative to other player
+  // need to (if player1 position greater than player2 position + (player2 width divided by 2), x = -70)
+  if (
+    player1.position.x + (player1.width % 2) >
+    player2.position.x + (player2.width % 2)
+  ) {
+    player1.basicAttackBox.offset.x = -70;
+  } else player1.basicAttackBox.offset.x = 0;
+
+  // need to (if player2 position less than player1 position + (player1 width divided by 2), x = 0)
+  if (
+    player2.position.x + (player2.width % 2) <
+    player1.position.x + (player1.width % 2)
+  ) {
+    player2.basicAttackBox.offset.x = 0;
+  } else player2.basicAttackBox.offset.x = -70;
+
   // check for collision
-  //
   if (
     collision({ attacker: player1, victim: player2 }) &&
     player1.isAttacking
   ) {
     player1.isAttacking = false;
-    console.log("pain");
+    console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
   if (
@@ -191,7 +221,7 @@ function animate() {
     player2.isAttacking
   ) {
     player2.isAttacking = false;
-    console.log("ouchies");
+    console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
 }
 
