@@ -6,17 +6,29 @@ canvas.height = 576;
 
 context.fillRect(0, 0, canvas.width, canvas.height);
 
+/*considering to add 
+1) considering having double jump increase horizontal velocity
+2) a roll or dodge option that rapidly shifts player, likely with iFrames
+*/
+
+/*bug report: 
+holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key
+delay sometimes occurs before next applicable jump after a double jump, seems potentially height specific
+healthbar currently overlaps player models, should be players overlapping health.
+*/
+
 const gravity = 0.9;
 
 class PlayerCharacter {
   // fires everytime we create a new object from the PlayerCharacter class
-  constructor({ position, velocity, color = "green", offset, lastTime = 0 }) {
+  constructor({ position, velocity, color = "green", offset }) {
     this.position = position;
     this.velocity = velocity;
     this.height = 140;
     this.width = 70;
     this.color = color;
     this.lastKey;
+    //considering increasing horizontal velocity off double jump
     this.doubleJump = false;
     this.basicAttackBox = {
       position: {
@@ -27,7 +39,9 @@ class PlayerCharacter {
       width: 140,
       height: 50,
     };
+    this.lastTime = 0;
     this.isAttacking;
+    this.health = 100;
   }
   // Creates PlayerCharacter
   create() {
@@ -61,19 +75,23 @@ class PlayerCharacter {
     let onTheGround =
       this.position.y + this.height + this.velocity.y >= canvas.height;
 
-    // if player position+height+velocity greater than canvas bottom, stop velocity. Else apply gravity+velocity (fall speed increases incrementally over time)
     if (onTheGround) {
       this.doubleJump = false;
       this.velocity.y = 0;
     } else this.velocity.y += gravity;
 
-    let againstBorder =
-      this.position.x + this.velocity.x < 0 ||
+    let againstLeftBorder = this.position.x + this.velocity.x < 0;
+
+    let againstRightBorder =
       this.position.x + this.width + this.velocity.x >= canvas.width;
 
     //console.log(againstBorder);
 
-    if (againstBorder) {
+    if (againstLeftBorder) {
+      this.position.x = 0;
+    }
+    if (againstRightBorder) {
+      this.position.x = canvas.width - this.width;
     }
   }
 
@@ -151,7 +169,7 @@ const keys = {
   },
 };
 
-function collision({ attacker, victim }) {
+function attackCollision({ attacker, victim }) {
   return (
     attacker.basicAttackBox.position.x + attacker.basicAttackBox.width >=
       victim.position.x &&
@@ -209,27 +227,32 @@ function animate() {
 
   // check for collision
   if (
-    collision({ attacker: player1, victim: player2 }) &&
+    attackCollision({ attacker: player1, victim: player2 }) &&
     player1.isAttacking
   ) {
     player1.isAttacking = false;
+    player2.health -= 20;
+    document.querySelector("#player2Health").style.width = `${player2.health}%`;
     console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
   if (
-    collision({ attacker: player2, victim: player1 }) &&
+    attackCollision({ attacker: player2, victim: player1 }) &&
     player2.isAttacking
   ) {
     player2.isAttacking = false;
+    player1.health -= 20;
+    document.querySelector("#player1Health").style.width = `${player1.health}%`;
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
 }
 
 animate();
 
-window.addEventListener("keydown", (event) => {
+//keys / controls
+window.addEventListener("keydown", ({ key }) => {
   //player 1
-  switch (event.key) {
+  switch (key) {
     case "d":
       keys.d.pressed = true;
       player1.lastKey = "d";
@@ -240,15 +263,16 @@ window.addEventListener("keydown", (event) => {
       break;
     case player1.velocity.y === 0 && "w":
       keys.w.pressed = true;
+      player1.doubleJump = true;
       setTimeout(() => {
         player1.doubleJump = false;
       }, 600);
-      player1.doubleJump = true;
-      player1.velocity.y = -18;
+      player1.velocity.y = -19;
+
       break;
     case player1.doubleJump === true && "w":
       keys.w.pressed = true;
-      player1.velocity.y = -11;
+      player1.velocity.y = -12;
       player1.doubleJump = false;
       break;
     case " ":
@@ -270,11 +294,11 @@ window.addEventListener("keydown", (event) => {
       setTimeout(() => {
         player2.doubleJump = false;
       }, 600);
-      player2.velocity.y = -18;
+      player2.velocity.y = -19;
       break;
     case player2.doubleJump && "ArrowUp":
       keys.ArrowUp.pressed = true;
-      player2.velocity.y = -11;
+      player2.velocity.y = -12;
       player2.doubleJump = false;
       break;
     case "ArrowDown":
@@ -283,8 +307,8 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-window.addEventListener("keyup", (event) => {
-  switch (event.key) {
+window.addEventListener("keyup", ({ key }) => {
+  switch (key) {
     case "d":
       keys.d.pressed = false;
       break;
