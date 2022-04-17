@@ -21,7 +21,7 @@ const gravity = 0.9;
 
 class PlayerCharacter {
   // fires everytime we create a new object from the PlayerCharacter class
-  constructor({ position, velocity, color = "green", offset }) {
+  constructor({ position, velocity, color = "darkgreen", offset }) {
     this.position = position;
     this.velocity = velocity;
     this.height = 140;
@@ -179,6 +179,20 @@ function attackCollision({ attacker, victim }) {
     attacker.basicAttackBox.position.y <= victim.position.y + victim.height
   );
 }
+
+let timer = 10;
+
+//decreases the timer by 1 and calls itself repeatedly once invoked, every 1000 ms
+function clockDecrease() {
+  if (timer > 0) {
+    setTimeout(clockDecrease, 1000);
+    timer--;
+    //specifically connects the time decrease directly to the html clock
+    document.querySelector("#clock").innerHTML = timer;
+  }
+}
+
+clockDecrease();
 
 //creates an infinite loop of requesting animation frames
 function animate() {
