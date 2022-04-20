@@ -9,7 +9,6 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 /*considering to add 
 ~ Guilty gear airdash
 ~ a roll or dodge option that rapidly shifts player, likely with iFrames
-~ add knockback to attacks received
 ~ add multiple attacks, characters with different properties
 ~ add a character select menu and a way to reset the game
 ~ add a best of x feature counting the cumulative round wins in a 3/5 format
@@ -17,7 +16,6 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 ~ win and loss screens with voice acted lines and attacks/hits
 ~ add Oki?
 ~ add scrolling for a brief interval for corners.
-~ apply hitstun
 
 */
 
