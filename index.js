@@ -7,17 +7,28 @@ canvas.height = 576;
 context.fillRect(0, 0, canvas.width, canvas.height);
 
 /*considering to add 
-1) considering having double jump increase horizontal velocity
-2) a roll or dodge option that rapidly shifts player, likely with iFrames
+~ Guilty gear airdash
+~ a roll or dodge option that rapidly shifts player, likely with iFrames
+~ add knockback to attacks received
+~ add multiple attacks, characters with different properties
+~ add a character select menu and a way to reset the game
+~ add a best of x feature counting the cumulative round wins in a 3/5 format
+~ add blocking and grabbing
+~ win and loss screens with voice acted lines and attacks/hits
+~ Add Oki?
+~ Add scrolling for a brief interval for corners.
 */
 
 /*bug report: 
-holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key
+holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key, same movement bug applies with attacks
 delay sometimes occurs before next applicable jump after a double jump, seems potentially height specific
 healthbar currently overlaps player models, should be players overlapping health.
 */
-
+let gameOver = false;
+let timer = 100;
+let clock;
 const gravity = 0.9;
+// future horizontal movement const shift = 1;
 
 class PlayerCharacter {
   // fires everytime we create a new object from the PlayerCharacter class
@@ -96,10 +107,13 @@ class PlayerCharacter {
   }
 
   attack() {
-    //uses closure with lastTime to set a mandatory wait period between attacks made
+    /*uses closure with lastTime to set a mandatory wait period between attacks made
+    Returns the numeric value of the specified date as the number of milliseconds since January 1, 1970, 00:00:00 UTC.*/
     const now = new Date().getTime(); // Time in milliseconds
+    //ends the function immediately if the collective time of the date - the current point in time is less than the set waiting period (ms)
     if (now - this.lastTime < 925) {
       return;
+      //sets the time of lastTime timer to the current point in time and doesnt end the function, allowing the attack to trigger
     } else {
       this.lastTime = now;
     }
@@ -180,15 +194,35 @@ function attackCollision({ attacker, victim }) {
   );
 }
 
-let timer = 10;
+function declareWinner({ player1, player2 }) {
+  //cancels the setTimeOut in clockDecrease that decreases the timer every 1000ms
+  clock = clearTimeout(clock);
+  // changes display from "none" in HTML to show message
+  document.querySelector("#gameOver").style.display = "Flex";
+  if (player1.health === player2.health) {
+    document.querySelector("#gameOver").innerHTML = "Draw";
+  }
+  if (player1.health > player2.health) {
+    document.querySelector("#gameOver").innerHTML = "Player 1 Wins!";
+  }
+  if (player2.health > player1.health) {
+    document.querySelector("#gameOver").innerHTML = "Player 2 Wins!";
+  }
+  //disables button inputs after winner is declared (see keys if statement)
+  return (gameOver = true);
+}
 
 //decreases the timer by 1 and calls itself repeatedly once invoked, every 1000 ms
 function clockDecrease() {
   if (timer > 0) {
-    setTimeout(clockDecrease, 1000);
+    clock = setTimeout(clockDecrease, 1000);
     timer--;
     //specifically connects the time decrease directly to the html clock
     document.querySelector("#clock").innerHTML = timer;
+  }
+  //invokes win conditions based on time
+  if (timer === 0) {
+    declareWinner({ player1, player2 });
   }
 }
 
@@ -259,65 +293,71 @@ function animate() {
     document.querySelector("#player1Health").style.width = `${player1.health}%`;
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
+
+  if (player1.health <= 0 || player2.health <= 0) {
+    declareWinner({ player1, player2 });
+  }
 }
 
 animate();
 
-//keys / controls
+//keys & controls
 window.addEventListener("keydown", ({ key }) => {
   //player 1
-  switch (key) {
-    case "d":
-      keys.d.pressed = true;
-      player1.lastKey = "d";
-      break;
-    case "a":
-      keys.a.pressed = true;
-      player1.lastKey = "a";
-      break;
-    case player1.velocity.y === 0 && "w":
-      keys.w.pressed = true;
-      player1.doubleJump = true;
-      setTimeout(() => {
+  if (gameOver === false) {
+    switch (key) {
+      case "d":
+        keys.d.pressed = true;
+        player1.lastKey = "d";
+        break;
+      case "a":
+        keys.a.pressed = true;
+        player1.lastKey = "a";
+        break;
+      case player1.velocity.y === 0 && "w":
+        keys.w.pressed = true;
+        player1.doubleJump = true;
+        setTimeout(() => {
+          player1.doubleJump = false;
+        }, 600);
+        player1.velocity.y = -19;
+
+        break;
+      case player1.doubleJump === true && "w":
+        keys.w.pressed = true;
+        player1.velocity.y = -12;
         player1.doubleJump = false;
-      }, 600);
-      player1.velocity.y = -19;
+        break;
+      case " ":
+        player1.attack();
+        break;
 
-      break;
-    case player1.doubleJump === true && "w":
-      keys.w.pressed = true;
-      player1.velocity.y = -12;
-      player1.doubleJump = false;
-      break;
-    case " ":
-      player1.attack();
-      break;
-
-    //player 2
-    case "ArrowRight":
-      keys.ArrowRight.pressed = true;
-      player2.lastKey = "ArrowRight";
-      break;
-    case "ArrowLeft":
-      keys.ArrowLeft.pressed = true;
-      player2.lastKey = "ArrowLeft";
-      break;
-    case player2.velocity.y === 0 && "ArrowUp":
-      keys.ArrowUp.pressed = true;
-      player2.doubleJump = true;
-      setTimeout(() => {
+      //player 2
+      case "ArrowRight":
+        keys.ArrowRight.pressed = true;
+        player2.lastKey = "ArrowRight";
+        break;
+      case "ArrowLeft":
+        keys.ArrowLeft.pressed = true;
+        player2.lastKey = "ArrowLeft";
+        break;
+      case player2.velocity.y === 0 && "ArrowUp":
+        keys.ArrowUp.pressed = true;
+        player2.doubleJump = true;
+        setTimeout(() => {
+          player2.doubleJump = false;
+        }, 600);
+        player2.velocity.y = -19;
+        break;
+      case player2.doubleJump && "ArrowUp":
+        keys.ArrowUp.pressed = true;
+        player2.velocity.y = -12;
         player2.doubleJump = false;
-      }, 600);
-      player2.velocity.y = -19;
-      break;
-    case player2.doubleJump && "ArrowUp":
-      keys.ArrowUp.pressed = true;
-      player2.velocity.y = -12;
-      player2.doubleJump = false;
-      break;
-    case "ArrowDown":
-      player2.attack();
-      break;
+        break;
+      case "ArrowDown":
+        player2.attack();
+        break;
+    }
   }
 });
 
