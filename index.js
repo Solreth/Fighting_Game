@@ -15,14 +15,17 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 ~ add a best of x feature counting the cumulative round wins in a 3/5 format
 ~ add blocking and grabbing
 ~ win and loss screens with voice acted lines and attacks/hits
-~ Add Oki?
-~ Add scrolling for a brief interval for corners.
+~ add Oki?
+~ add scrolling for a brief interval for corners.
+~ apply hitstun
+
 */
 
 /*bug report: 
-holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key, same movement bug applies with attacks
-delay sometimes occurs before next applicable jump after a double jump, seems potentially height specific
-healthbar currently overlaps player models, should be players overlapping health.
+~holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key, same movement bug applies with attacks
+~delay sometimes occurs before next applicable jump after a double jump, seems potentially height specific
+~healthbar currently overlaps player models, should be players overlapping health.
+~holding down attack pulls out an attack every so many ms, unless the opponent presses a key?
 */
 let gameOver = false;
 let timer = 100;
@@ -39,6 +42,7 @@ class PlayerCharacter {
     this.width = 70;
     this.color = color;
     this.lastKey;
+    this.knockback = false;
     //considering increasing horizontal velocity off double jump
     this.doubleJump = false;
     this.basicAttackBox = {
@@ -157,8 +161,6 @@ const player2 = new PlayerCharacter({
   },
 });
 
-let lastKey;
-
 const keys = {
   //player1
   a: {
@@ -208,7 +210,14 @@ function declareWinner({ player1, player2 }) {
   if (player2.health > player1.health) {
     document.querySelector("#gameOver").innerHTML = "Player 2 Wins!";
   }
+
+  // declares final relevant frame as having no velocity
+
+  setTimeout(() => (player1.velocity.x = 0), 1000);
+  setTimeout(() => (player2.velocity.x = 0), 1000);
+
   //disables button inputs after winner is declared (see keys if statement)
+
   return (gameOver = true);
 }
 
@@ -239,21 +248,24 @@ function animate() {
   player1.update();
   player2.update();
 
-  player1.velocity.x = 0;
-  player2.velocity.x = 0;
+  if (player1.knockback === false) player1.velocity.x = 0;
+  if (player2.knockback === false) player2.velocity.x = 0;
 
   //player 1 movement
-  if (keys.a.pressed && player1.lastKey === "a") {
-    player1.velocity.x = -6;
-  } else if (keys.d.pressed && player1.lastKey === "d") {
-    player1.velocity.x = 6;
+  if (player1.knockback === false) {
+    if (keys.a.pressed && player1.lastKey === "a") {
+      player1.velocity.x = -6;
+    } else if (keys.d.pressed && player1.lastKey === "d") {
+      player1.velocity.x = 6;
+    }
   }
-
   //player 2 movement
-  if (keys.ArrowLeft.pressed && player2.lastKey === "ArrowLeft") {
-    player2.velocity.x = -6;
-  } else if (keys.ArrowRight.pressed && player2.lastKey === "ArrowRight") {
-    player2.velocity.x = 6;
+  if (player2.knockback === false) {
+    if (keys.ArrowLeft.pressed && player2.lastKey === "ArrowLeft") {
+      player2.velocity.x = -6;
+    } else if (keys.ArrowRight.pressed && player2.lastKey === "ArrowRight") {
+      player2.velocity.x = 6;
+    }
   }
 
   //hitbox position relative to other player
@@ -274,22 +286,48 @@ function animate() {
   } else player2.basicAttackBox.offset.x = -70;
 
   // check for collision
+
+  // player1
   if (
     attackCollision({ attacker: player1, victim: player2 }) &&
     player1.isAttacking
   ) {
     player1.isAttacking = false;
     player2.health -= 20;
+    player2.knockback = true;
+    setTimeout(() => {
+      player2.knockback = false;
+    }, 385);
+    player2.velocity.y = -10;
+    if (
+      player1.position.x + (player1.width % 2) <
+      player2.position.x + (player2.width % 2)
+    ) {
+      player2.velocity.x = 10;
+    } else player2.velocity.x = -10;
+
     document.querySelector("#player2Health").style.width = `${player2.health}%`;
     console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
+  //player2
   if (
     attackCollision({ attacker: player2, victim: player1 }) &&
     player2.isAttacking
   ) {
     player2.isAttacking = false;
     player1.health -= 20;
+    player1.knockback = true;
+    setTimeout(() => {
+      player1.knockback = false;
+    }, 385);
+    player1.velocity.y = -10;
+    if (
+      player2.position.x + (player2.width % 2) <
+      player1.position.x + (player1.width % 2)
+    ) {
+      player1.velocity.x = 10;
+    } else player1.velocity.x = -10;
     document.querySelector("#player1Health").style.width = `${player1.health}%`;
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
