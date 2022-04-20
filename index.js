@@ -209,11 +209,11 @@ function declareWinner({ player1, player2 }) {
     document.querySelector("#gameOver").innerHTML = "Player 2 Wins!";
   }
 
-  // declares final relevant frame as having no velocity
-
-  setTimeout(() => (player1.velocity.x = 0), 1000);
-  setTimeout(() => (player2.velocity.x = 0), 1000);
-
+  // declares final relevant horizontal movement frame as having no velocity after 400ms
+  setTimeout(() => (player1.velocity.x = 0), 400);
+  setTimeout(() => (player2.velocity.x = 0), 400);
+  //squashes a bug that lets the player slowly increment post death by holding down movement
+  setTimeout(() => ((player2.lastkey = ""), (player1.lastKey = "")), 1);
   //disables button inputs after winner is declared (see keys if statement)
 
   return (gameOver = true);
