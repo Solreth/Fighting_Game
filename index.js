@@ -6,127 +6,35 @@ canvas.height = 576;
 
 context.fillRect(0, 0, canvas.width, canvas.height);
 
-/*considering to add 
-~ Guilty gear airdash
-~ a roll or dodge option that rapidly shifts player, likely with iFrames
-~ add multiple attacks, characters with different properties
-~ add a character select menu and a way to reset the game
-~ add a best of x feature counting the cumulative round wins in a 3/5 format
-~ add blocking and grabbing
-~ win and loss screens with voice acted lines and attacks/hits
-~ add Oki?
-~ add scrolling for a brief interval for corners.
-
-*/
-
-/*bug report: 
-~holding "a", then "d", then jumping and releasing "d" will cease your horizontal movement rather than return to "a" because "a" will no longer be last key, same movement bug applies with attacks
-~delay sometimes occurs before next applicable jump after a double jump, seems potentially height specific
-~healthbar currently overlaps player models, should be players overlapping health.
-~holding down attack pulls out an attack every so many ms, unless the opponent presses a key?
-*/
 let gameOver = false;
 let timer = 100;
 let clock;
 const gravity = 0.9;
 // future horizontal movement const shift = 1;
 
-class PlayerCharacter {
-  // fires everytime we create a new object from the PlayerCharacter class
-  constructor({ position, velocity, color = "darkgreen", offset }) {
-    this.position = position;
-    this.velocity = velocity;
-    this.height = 140;
-    this.width = 70;
-    this.color = color;
-    this.lastKey;
-    this.knockback = false;
-    //considering increasing horizontal velocity off double jump
-    this.doubleJump = false;
-    this.basicAttackBox = {
-      position: {
-        x: this.position.x,
-        y: this.position.y,
-      },
-      offset,
-      width: 140,
-      height: 50,
-    };
-    this.lastTime = 0;
-    this.isAttacking;
-    this.health = 100;
-  }
-  // Creates PlayerCharacter
-  create() {
-    context.fillStyle = this.color;
-    context.fillRect(this.position.x, this.position.y, 70, 140);
+const background = new Sprite({
+  position: {
+    x: 0,
+    y: 0,
+  },
+  imageSrc: "./img/Background/layer_1.png",
+});
 
-    //basicAttackPosition/color
-    if (this.isAttacking) {
-      context.fillStyle = "orange";
-      context.fillRect(
-        this.basicAttackBox.position.x,
-        this.basicAttackBox.position.y,
-        this.basicAttackBox.width,
-        this.basicAttackBox.height
-      );
-    }
-  }
+const background2 = new Sprite({
+  position: {
+    x: 0,
+    y: 157,
+  },
+  imageSrc: "./img/Background/layer_2.png",
+});
 
-  update() {
-    this.basicAttackBox.position.x =
-      this.position.x + this.basicAttackBox.offset.x;
-
-    this.basicAttackBox.position.y =
-      this.position.y + this.basicAttackBox.offset.y;
-
-    this.create();
-
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-
-    let onTheGround =
-      this.position.y + this.height + this.velocity.y >= canvas.height;
-
-    if (onTheGround) {
-      this.doubleJump = false;
-      this.velocity.y = 0;
-    } else this.velocity.y += gravity;
-
-    let againstLeftBorder = this.position.x + this.velocity.x < 0;
-
-    let againstRightBorder =
-      this.position.x + this.width + this.velocity.x >= canvas.width;
-
-    //console.log(againstBorder);
-
-    if (againstLeftBorder) {
-      this.position.x = 0;
-    }
-    if (againstRightBorder) {
-      this.position.x = canvas.width - this.width;
-    }
-  }
-
-  attack() {
-    /*uses closure with lastTime to set a mandatory wait period between attacks made
-    Returns the numeric value of the specified date as the number of milliseconds since January 1, 1970, 00:00:00 UTC.*/
-    const now = new Date().getTime(); // Time in milliseconds
-    //ends the function immediately if the collective time of the date - the current point in time is less than the set waiting period (ms)
-    if (now - this.lastTime < 925) {
-      return;
-      //sets the time of lastTime timer to the current point in time and doesnt end the function, allowing the attack to trigger
-    } else {
-      this.lastTime = now;
-    }
-    //initiates the hitbox
-    this.isAttacking = true;
-    // 100ms after initiation this disables the hitbox
-    setTimeout(() => {
-      this.isAttacking = false;
-    }, 100);
-  }
-}
+const background3 = new Sprite({
+  position: {
+    x: 0,
+    y: 480,
+  },
+  imageSrc: "./img/Background/layer_3.png",
+});
 
 const player1 = new PlayerCharacter({
   position: {
@@ -243,6 +151,9 @@ function animate() {
   //sets the size of the colored reset
   context.fillRect(0, 0, canvas.width, canvas.height);
   //updates the position and status of players it creates
+  background.update();
+  background2.update();
+  background3.update();
   player1.update();
   player2.update();
 
