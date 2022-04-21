@@ -46,7 +46,7 @@ class PlayerCharacter {
     context.fillRect(this.position.x, this.position.y, 70, 140);
 
     //basicAttackPosition/color
-    if (this.isAttacking) {
+    if (this.isAttacking && this.knockback === false) {
       context.fillStyle = "orange";
       context.fillRect(
         this.basicAttackBox.position.x,
@@ -70,7 +70,7 @@ class PlayerCharacter {
     this.position.y += this.velocity.y;
 
     let onTheGround =
-      this.position.y + this.height + this.velocity.y >= canvas.height;
+      this.position.y + this.height + this.velocity.y >= canvas.height - 72;
 
     if (onTheGround) {
       this.doubleJump = false;

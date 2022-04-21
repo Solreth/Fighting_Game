@@ -28,18 +28,34 @@ const background2 = new Sprite({
   imageSrc: "./img/Background/layer_2.png",
 });
 
+const foreground = new Sprite({
+  position: {
+    x: 0,
+    y: 0,
+  },
+  imageSrc: "./img/Background/floor_foreground.png",
+});
+
 const background3 = new Sprite({
   position: {
     x: 0,
-    y: 480,
+    y: 520,
   },
   imageSrc: "./img/Background/layer_3.png",
+});
+
+const UI_clock = new Sprite({
+  position: {
+    x: 468,
+    y: 12,
+  },
+  imageSrc: "./img/UI/clock.png",
 });
 
 const player1 = new PlayerCharacter({
   position: {
     x: 150,
-    y: 0,
+    y: 100,
   },
   velocity: {
     x: 0,
@@ -55,7 +71,7 @@ const player1 = new PlayerCharacter({
 const player2 = new PlayerCharacter({
   position: {
     x: 804,
-    y: 0,
+    y: 100,
   },
   velocity: {
     x: 0,
@@ -121,7 +137,7 @@ function declareWinner({ player1, player2 }) {
   setTimeout(() => (player1.velocity.x = 0), 400);
   setTimeout(() => (player2.velocity.x = 0), 400);
   //squashes a bug that lets the player slowly increment post death by holding down movement
-  setTimeout(() => ((player2.lastkey = ""), (player1.lastKey = "")), 1);
+  setTimeout(() => ((player2.lastkey = ""), (player1.lastKey = "")), 5);
   //disables button inputs after winner is declared (see keys if statement)
 
   return (gameOver = true);
@@ -146,14 +162,12 @@ clockDecrease();
 //creates an infinite loop of requesting animation frames
 function animate() {
   window.requestAnimationFrame(animate);
-  // resets the background as black so it doesnt fill red
-  context.fillStyle = "black";
-  //sets the size of the colored reset
-  context.fillRect(0, 0, canvas.width, canvas.height);
   //updates the position and status of players it creates
   background.update();
   background2.update();
+  foreground.update();
   background3.update();
+  UI_clock.update();
   player1.update();
   player2.update();
 
