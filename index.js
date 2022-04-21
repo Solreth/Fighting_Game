@@ -46,8 +46,8 @@ const background3 = new Sprite({
 
 const UI_clock = new Sprite({
   position: {
-    x: 468,
-    y: 12,
+    x: 467,
+    y: 10,
   },
   imageSrc: "./img/UI/clock.png",
 });
