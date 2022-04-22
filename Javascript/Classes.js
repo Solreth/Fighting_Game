@@ -23,6 +23,7 @@ class PlayerCharacter {
     this.height = 140;
     this.width = 70;
     this.color = color;
+    // potential solution, if no movement option valid, then last key pressed = last lastkey pressed
     this.lastKey;
     this.knockback = false;
     //considering increasing horizontal velocity off double jump
