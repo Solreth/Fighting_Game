@@ -1,18 +1,45 @@
 class Sprite {
-  constructor({ position, imageSrc }) {
+  constructor({ position, imageSrc, frames = 1 }) {
     this.position = position;
     this.height = 140;
     this.width = 70;
     this.image = new Image();
     this.image.src = imageSrc;
+    this.frames = frames;
+    this.currentFrame = 0;
+    this.framesElapsed = 0;
+    this.framesDelay = 4;
   }
   // Creates Sprite
   create() {
-    context.drawImage(this.image, this.position.x, this.position.y);
+    context.drawImage(
+      this.image,
+      //cropping from here
+      // multiply the current frame by separated animation (by max frames) to determine where =the leftside crop position is
+      this.currentFrame * (this.image.width / this.frames),
+      0,
+      //crops at the rightside edge of the first frame
+      this.image.width / this.frames,
+      //crops at image height
+      this.image.height,
+      // to here^ for animations
+      this.position.x,
+      this.position.y,
+      this.image.width / this.frames,
+      this.image.height
+    );
   }
 
   update() {
     this.create();
+    this.framesElapsed++;
+    if (this.framesElapsed % this.framesDelay === 0) {
+      if (this.currentFrame < this.frames - 1) {
+        this.currentFrame++;
+      } else {
+        this.currentFrame = 0;
+      }
+    }
   }
 }
 

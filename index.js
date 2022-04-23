@@ -36,7 +36,40 @@ const foreground = new Sprite({
   imageSrc: "./img/Background/floor_foreground.png",
 });
 
-const background3 = new Sprite({
+const torch1 = new Sprite({
+  position: {
+    x: 80,
+    y: 360,
+  },
+  frames: 6,
+  imageSrc: "./img/Background/torch.png",
+});
+
+const torch2 = new Sprite({
+  position: {
+    x: 312,
+    y: 360,
+  },
+  frames: 6,
+  imageSrc: "./img/Background/torch.png",
+});
+
+const torch_background1 = new Sprite({
+  position: {
+    x: 72,
+    y: 388,
+  },
+  imageSrc: "./img/Background/torch_background.png",
+});
+
+const torch_background2 = new Sprite({
+  position: {
+    x: 304,
+    y: 388,
+  },
+  imageSrc: "./img/Background/torch_background.png",
+});
+const foreground2 = new Sprite({
   position: {
     x: 0,
     y: 520,
@@ -166,7 +199,11 @@ function animate() {
   background.update();
   background2.update();
   foreground.update();
-  background3.update();
+  torch_background1.update();
+  torch1.update();
+  torch_background2.update();
+  torch2.update();
+  foreground2.update();
   UI_clock.update();
   player1.update();
   player2.update();
