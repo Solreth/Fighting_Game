@@ -94,11 +94,18 @@ const player1 = new PlayerCharacter({
     x: 0,
     y: 0,
   },
-  color: "Blue",
   offset: {
     x: 0,
     y: 30,
   },
+  imageSrc: "./img/Character/Idle.png",
+  frames: 10,
+  scale: 1.35,
+  playerOffset: {
+    x: -124,
+    y: -103,
+  },
+  framesDelay: 7,
 });
 
 const player2 = new PlayerCharacter({
@@ -114,6 +121,14 @@ const player2 = new PlayerCharacter({
     x: -70,
     y: 30,
   },
+  imageSrc: "./img/Character/Idle2Left.png",
+  frames: 10,
+  scale: 1.35,
+  playerOffset: {
+    x: -130,
+    y: -103,
+  },
+  framesDelay: 7,
 });
 
 const keys = {
@@ -318,7 +333,7 @@ window.addEventListener("keydown", ({ key }) => {
         setTimeout(() => {
           player1.doubleJump = false;
         }, 600);
-        player1.velocity.y = -19;
+        player1.velocity.y = -18;
 
         break;
       case player1.doubleJump === true && "w":
@@ -345,7 +360,7 @@ window.addEventListener("keydown", ({ key }) => {
         setTimeout(() => {
           player2.doubleJump = false;
         }, 600);
-        player2.velocity.y = -19;
+        player2.velocity.y = -18;
         break;
       case player2.doubleJump && "ArrowUp":
         keys.ArrowUp.pressed = true;

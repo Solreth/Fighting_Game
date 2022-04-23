@@ -1,5 +1,12 @@
 class Sprite {
-  constructor({ position, imageSrc, frames = 1 }) {
+  constructor({
+    position,
+    imageSrc,
+    scale = 1,
+    frames = 1,
+    playerOffset = { x: 0, y: 0 },
+    framesDelay = 4,
+  }) {
     this.position = position;
     this.height = 140;
     this.width = 70;
@@ -8,7 +15,9 @@ class Sprite {
     this.frames = frames;
     this.currentFrame = 0;
     this.framesElapsed = 0;
-    this.framesDelay = 4;
+    this.framesDelay = framesDelay;
+    this.scale = scale;
+    this.playerOffset = playerOffset;
   }
   // Creates Sprite
   create() {
@@ -23,11 +32,21 @@ class Sprite {
       //crops at image height
       this.image.height,
       // to here^ for animations
-      this.position.x,
-      this.position.y,
-      this.image.width / this.frames,
-      this.image.height
+      this.position.x + this.playerOffset.x,
+      this.position.y + this.playerOffset.y,
+      (this.image.width / this.frames) * this.scale,
+      this.image.height * this.scale
     );
+    //basicAttackPosition/color
+    if (this.isAttacking && this.knockback === false) {
+      context.fillStyle = "orange";
+      context.fillRect(
+        this.basicAttackBox.position.x,
+        this.basicAttackBox.position.y,
+        this.basicAttackBox.width,
+        this.basicAttackBox.height
+      );
+    }
   }
 
   update() {
@@ -43,9 +62,20 @@ class Sprite {
   }
 }
 
-class PlayerCharacter {
-  constructor({ position, velocity, color = "darkgreen", offset }) {
-    this.position = position;
+class PlayerCharacter extends Sprite {
+  constructor({
+    position,
+    velocity,
+    color = "darkgreen",
+    offset,
+    imageSrc,
+    scale = 1,
+    frames = 1,
+    playerOffset = { x: 0, y: 0 },
+    framesDelay,
+  }) {
+    super({ position, imageSrc, scale, frames, playerOffset, framesDelay });
+
     this.velocity = velocity;
     this.height = 140;
     this.width = 70;
@@ -68,22 +98,6 @@ class PlayerCharacter {
     this.isAttacking;
     this.health = 100;
   }
-  // Creates PlayerCharacter
-  create() {
-    context.fillStyle = this.color;
-    context.fillRect(this.position.x, this.position.y, 70, 140);
-
-    //basicAttackPosition/color
-    if (this.isAttacking && this.knockback === false) {
-      context.fillStyle = "orange";
-      context.fillRect(
-        this.basicAttackBox.position.x,
-        this.basicAttackBox.position.y,
-        this.basicAttackBox.width,
-        this.basicAttackBox.height
-      );
-    }
-  }
 
   update() {
     this.basicAttackBox.position.x =
@@ -91,6 +105,15 @@ class PlayerCharacter {
 
     this.basicAttackBox.position.y =
       this.position.y + this.basicAttackBox.offset.y;
+
+    this.framesElapsed++;
+    if (this.framesElapsed % this.framesDelay === 0) {
+      if (this.currentFrame < this.frames - 1) {
+        this.currentFrame++;
+      } else {
+        this.currentFrame = 0;
+      }
+    }
 
     this.create();
 
