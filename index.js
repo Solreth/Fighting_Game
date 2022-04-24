@@ -276,6 +276,13 @@ function animate() {
   player1.update();
   player2.update();
 
+  // console.log("player 1 knockbackstate is", player1.knockback);
+  // console.log("player 1 current frame is", player1.currentFrame);
+  //console.log("frame cap is", player1.states.attacking.frames - 1);
+
+  //console.log("player 2 knockbackstate is", player2.knockback);
+  //console.log("player 2 current frame is", player2.currentFrame);
+  //console.log("frame cap is", player2.states.attacking.frames - 1);
   if (player1.knockback === false) player1.velocity.x = 0;
   if (player2.knockback === false) player2.velocity.x = 0;
 
@@ -323,7 +330,6 @@ function animate() {
         player2.switchState("run");
       }
     } else if (keys.ArrowRight.pressed && player2.lastKey === "ArrowRight") {
-      player2.velocity.x = 6;
       if (
         player2.position.x + (player2.width % 2) <
         player1.position.x + (player1.width % 2)
@@ -335,11 +341,11 @@ function animate() {
         player2.switchState("walking");
       }
     } else player2.switchState("idle");
-
-    if (player2.velocity.y < 0) player2.switchState("jumping");
-    if (player2.velocity.y > 0) player2.switchState("falling");
   }
+  if (player2.velocity.y < 0) player2.switchState("jumping");
+  if (player2.velocity.y > 0) player2.switchState("falling");
 
+  //mirrored
   //hitbox position relative to other player
   // need to (if player1 position greater than player2 position + (player2 width divided by 2), x = -70)
   if (
@@ -359,6 +365,7 @@ function animate() {
 
   // check for collision
 
+  //mirrored
   // player1
   if (
     attackCollision({ attacker: player1, victim: player2 }) &&
@@ -384,6 +391,7 @@ function animate() {
     console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
+  //factors a miss
   if (player1.isAttacking && player1.currentFrame === 5) {
     player1.isAttacking = false;
   }
@@ -413,6 +421,7 @@ function animate() {
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
 
+  //factors a miss
   if (player2.isAttacking && player2.currentFrame === 5) {
     player2.isAttacking = false;
   }

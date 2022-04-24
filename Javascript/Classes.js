@@ -170,10 +170,13 @@ class PlayerCharacter extends Sprite {
 
   switchState(state) {
     //kills the rest of the switch if the user is currently attack, preventing auto-return to idle until all frames have completed)
-    if (
-      this.image === this.states.attacking.image &&
-      this.currentFrame < this.states.attacking.frames - 1
-    ) {
+    if (this.image === this.states.attacking.image && this.currentFrame < 7) {
+      if (player1.image === player1.states.attacking.image) {
+        //console.log("Player1 current frame is:", player1.currentFrame);
+      }
+      if (player2.image === player2.states.attacking.image) {
+        //console.log("Player2 current frame is:", player2.currentFrame);
+      }
       //plants your attack if grounded
       if (this.velocity.y === 0) {
         this.velocity.x = 0;
