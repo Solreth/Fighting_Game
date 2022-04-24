@@ -96,7 +96,7 @@ const player1 = new PlayerCharacter({
   },
   offset: {
     x: 0,
-    y: 30,
+    y: 24,
   },
   imageSrc: "./img/Character/Idle.png",
   frames: 10,
@@ -145,7 +145,7 @@ const player2 = new PlayerCharacter({
   },
   offset: {
     x: -70,
-    y: 30,
+    y: 24,
   },
   imageSrc: "./img/Character/Idle2Left.png",
   frames: 10,
@@ -335,6 +335,7 @@ function animate() {
         player2.switchState("walking");
       }
     } else player2.switchState("idle");
+
     if (player2.velocity.y < 0) player2.switchState("jumping");
     if (player2.velocity.y > 0) player2.switchState("falling");
   }
@@ -345,7 +346,7 @@ function animate() {
     player1.position.x + (player1.width % 2) >
     player2.position.x + (player2.width % 2)
   ) {
-    player1.basicAttackBox.offset.x = -70;
+    player1.basicAttackBox.offset.x = -100;
   } else player1.basicAttackBox.offset.x = 0;
 
   // need to (if player2 position less than player1 position + (player1 width divided by 2), x = 0)
@@ -354,18 +355,20 @@ function animate() {
     player1.position.x + (player1.width % 2)
   ) {
     player2.basicAttackBox.offset.x = 0;
-  } else player2.basicAttackBox.offset.x = -70;
+  } else player2.basicAttackBox.offset.x = -100;
 
   // check for collision
 
   // player1
   if (
     attackCollision({ attacker: player1, victim: player2 }) &&
-    player1.isAttacking
+    player1.isAttacking &&
+    player1.currentFrame === 4
   ) {
     player1.isAttacking = false;
     player2.health -= 20;
     player2.knockback = true;
+    player2.isAttacking = false;
     setTimeout(() => {
       player2.knockback = false;
     }, 385);
@@ -381,14 +384,20 @@ function animate() {
     console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
-  //player2
+  if (player1.isAttacking && player1.currentFrame === 5) {
+    player1.isAttacking = false;
+  }
+
+  //player 2
   if (
     attackCollision({ attacker: player2, victim: player1 }) &&
-    player2.isAttacking
+    player2.isAttacking &&
+    player2.currentFrame === 4
   ) {
     player2.isAttacking = false;
     player1.health -= 20;
     player1.knockback = true;
+    player1.isAttacking = false;
     setTimeout(() => {
       player1.knockback = false;
     }, 385);
@@ -399,8 +408,13 @@ function animate() {
     ) {
       player1.velocity.x = 10;
     } else player1.velocity.x = -10;
+
     document.querySelector("#player1Health").style.width = `${player1.health}%`;
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
+  }
+
+  if (player2.isAttacking && player2.currentFrame === 5) {
+    player2.isAttacking = false;
   }
 
   if (player1.health <= 0 || player2.health <= 0) {

@@ -38,8 +38,12 @@ class Sprite {
       this.image.height * this.scale
     );
     //basicAttackPosition/color
-    if (this.isAttacking && this.knockback === false) {
-      context.fillStyle = "yellow";
+    if (
+      this.isAttacking &&
+      this.knockback === false &&
+      this.currentFrame === 4
+    ) {
+      context.fillStyle = "transparent";
       context.fillRect(
         this.basicAttackBox.position.x,
         this.basicAttackBox.position.y,
@@ -140,8 +144,6 @@ class PlayerCharacter extends Sprite {
     let againstRightBorder =
       this.position.x + this.width + this.velocity.x >= canvas.width;
 
-    //console.log(againstBorder);
-
     if (againstLeftBorder) {
       this.position.x = 0;
     }
@@ -163,13 +165,7 @@ class PlayerCharacter extends Sprite {
     }
     //initiates the hitbox
     this.switchState("attacking");
-    setTimeout(() => {
-      this.isAttacking = true;
-    }, 140);
-    // 260ms after initiation this disables the hitbox
-    setTimeout(() => {
-      this.isAttacking = false;
-    }, 260);
+    this.isAttacking = true;
   }
 
   switchState(state) {
@@ -181,8 +177,8 @@ class PlayerCharacter extends Sprite {
       //plants your attack if grounded
       if (this.velocity.y === 0) {
         this.velocity.x = 0;
-      } //speeds up the attack visually
-      this.framesDelay = 3;
+      } //speeds up the attack visually, independent from the other animations
+      this.framesDelay = 4;
       return;
     } else this.framesDelay = 7;
     switch (state) {
