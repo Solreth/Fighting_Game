@@ -39,7 +39,7 @@ class Sprite {
     );
     //basicAttackPosition/color
     if (this.isAttacking && this.knockback === false) {
-      context.fillStyle = "orange";
+      context.fillStyle = "yellow";
       context.fillRect(
         this.basicAttackBox.position.x,
         this.basicAttackBox.position.y,
@@ -66,7 +66,6 @@ class PlayerCharacter extends Sprite {
   constructor({
     position,
     velocity,
-    color = "darkgreen",
     offset,
     imageSrc,
     scale = 1,
@@ -81,7 +80,6 @@ class PlayerCharacter extends Sprite {
     this.velocity = velocity;
     this.height = 140;
     this.width = 70;
-    this.color = color;
     // potential solution, if no movement option valid, then last key pressed = last lastkey pressed
     this.lastKey;
     this.knockback = false;
@@ -93,8 +91,8 @@ class PlayerCharacter extends Sprite {
         y: this.position.y,
       },
       offset,
-      width: 140,
-      height: 50,
+      width: 170,
+      height: 60,
     };
     this.lastTime = 0;
     this.isAttacking;
@@ -107,6 +105,8 @@ class PlayerCharacter extends Sprite {
   }
 
   update() {
+    this.create();
+
     this.basicAttackBox.position.x =
       this.position.x + this.basicAttackBox.offset.x;
 
@@ -122,8 +122,6 @@ class PlayerCharacter extends Sprite {
       }
     }
 
-    this.create();
-
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -133,6 +131,8 @@ class PlayerCharacter extends Sprite {
     if (onTheGround) {
       this.doubleJump = false;
       this.velocity.y = 0;
+      // kills the bug surrounding additional falling animations by setting position exactly equal to the ground
+      this.position.y = 364.6;
     } else this.velocity.y += gravity;
 
     let againstLeftBorder = this.position.x + this.velocity.x < 0;
@@ -162,19 +162,34 @@ class PlayerCharacter extends Sprite {
       this.lastTime = now;
     }
     //initiates the hitbox
-    this.isAttacking = true;
-    // 100ms after initiation this disables the hitbox
+    this.switchState("attacking");
+    setTimeout(() => {
+      this.isAttacking = true;
+    }, 140);
+    // 260ms after initiation this disables the hitbox
     setTimeout(() => {
       this.isAttacking = false;
-    }, 100);
+    }, 260);
   }
 
-  switchState(sprite) {
-    switch (sprite) {
+  switchState(state) {
+    //kills the rest of the switch if the user is currently attack, preventing auto-return to idle until all frames have completed)
+    if (
+      this.image === this.states.attacking.image &&
+      this.currentFrame < this.states.attacking.frames - 1
+    ) {
+      //plants your attack if grounded
+      if (this.velocity.y === 0) {
+        this.velocity.x = 0;
+      } //speeds up the attack visually
+      this.framesDelay = 3;
+      return;
+    } else this.framesDelay = 7;
+    switch (state) {
       case "idle":
         if (this.image !== this.states.idle.image) {
-          this.image = player1.states.idle.image;
-          this.frames = player1.states.idle.frames;
+          this.image = this.states.idle.image;
+          this.frames = this.states.idle.frames;
           this.currentFrame = 0;
         }
         break;
@@ -201,7 +216,12 @@ class PlayerCharacter extends Sprite {
           this.currentFrame = 0;
         }
         break;
-      case "attack":
+      case "attacking":
+        if (this.image !== this.states.attacking.image) {
+          this.frames = this.states.attacking.frames;
+          this.image = this.states.attacking.image;
+          this.currentFrame = 0;
+        }
         break;
       case "falling":
         if (this.image !== this.states.falling.image) {

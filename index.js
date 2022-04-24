@@ -127,6 +127,10 @@ const player1 = new PlayerCharacter({
       imageSrc: "./img/Character/Walk.png",
       frames: 8,
     },
+    attacking: {
+      imageSrc: "./img/Character/Attack1.png",
+      frames: 8,
+    },
   },
 });
 
@@ -151,6 +155,33 @@ const player2 = new PlayerCharacter({
     y: -103,
   },
   framesDelay: 7,
+  states: {
+    idle: {
+      imageSrc: "./img/Character/Idle2Left.png",
+      frames: 10,
+    },
+    run: {
+      imageSrc: "./img/Character/Run2.png",
+      frames: 8,
+    },
+    jumping: {
+      imageSrc: "./img/Character/Jump2.png",
+      frames: 3,
+    },
+    falling: {
+      imageSrc: "./img/Character/Fall2.png",
+      frames: 3,
+    },
+    walking: {
+      imageSrc: "./img/Character/Walk2.png",
+      frames: 8,
+    },
+
+    attacking: {
+      imageSrc: "./img/Character/Attack1P2.png",
+      frames: 8,
+    },
+  },
 });
 
 const keys = {
@@ -255,7 +286,7 @@ function animate() {
         player1.position.x + (player1.width % 2) <
         player2.position.x + (player2.width % 2)
       ) {
-        player1.velocity.x = -4;
+        player1.velocity.x = -4.5;
         player1.switchState("walking");
       } else {
         player1.velocity.x = -6;
@@ -269,7 +300,7 @@ function animate() {
         player1.velocity.x = 6;
         player1.switchState("run");
       } else {
-        player1.velocity.x = 4;
+        player1.velocity.x = 4.5;
         player1.switchState("walking");
       }
     } else player1.switchState("idle");
@@ -277,13 +308,35 @@ function animate() {
   if (player1.velocity.y < 0) player1.switchState("jumping");
   if (player1.velocity.y > 0) player1.switchState("falling");
   // for later, if (player1.knockback === true){player1.switchState("getHit")}
+
   //player 2 movement
   if (player2.knockback === false) {
     if (keys.ArrowLeft.pressed && player2.lastKey === "ArrowLeft") {
-      player2.velocity.x = -6;
+      if (
+        player2.position.x + (player2.width % 2) <
+        player1.position.x + (player1.width % 2)
+      ) {
+        player2.velocity.x = -4.5;
+        player2.switchState("walking");
+      } else {
+        player2.velocity.x = -6;
+        player2.switchState("run");
+      }
     } else if (keys.ArrowRight.pressed && player2.lastKey === "ArrowRight") {
       player2.velocity.x = 6;
-    }
+      if (
+        player2.position.x + (player2.width % 2) <
+        player1.position.x + (player1.width % 2)
+      ) {
+        player2.velocity.x = 6;
+        player2.switchState("run");
+      } else {
+        player2.velocity.x = 4.5;
+        player2.switchState("walking");
+      }
+    } else player2.switchState("idle");
+    if (player2.velocity.y < 0) player2.switchState("jumping");
+    if (player2.velocity.y > 0) player2.switchState("falling");
   }
 
   //hitbox position relative to other player
