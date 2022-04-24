@@ -73,9 +73,11 @@ class PlayerCharacter extends Sprite {
     frames = 1,
     playerOffset = { x: 0, y: 0 },
     framesDelay,
+    states,
   }) {
     super({ position, imageSrc, scale, frames, playerOffset, framesDelay });
 
+    this.states = states;
     this.velocity = velocity;
     this.height = 140;
     this.width = 70;
@@ -97,6 +99,11 @@ class PlayerCharacter extends Sprite {
     this.lastTime = 0;
     this.isAttacking;
     this.health = 100;
+
+    for (const state in this.states) {
+      states[state].image = new Image();
+      states[state].image.src = states[state].imageSrc;
+    }
   }
 
   update() {
@@ -160,5 +167,52 @@ class PlayerCharacter extends Sprite {
     setTimeout(() => {
       this.isAttacking = false;
     }, 100);
+  }
+
+  switchState(sprite) {
+    switch (sprite) {
+      case "idle":
+        if (this.image !== this.states.idle.image) {
+          this.image = player1.states.idle.image;
+          this.frames = player1.states.idle.frames;
+          this.currentFrame = 0;
+        }
+        break;
+      case "run":
+        if (this.image !== this.states.run.image) {
+          //sets the src image of the respective model (and the images frames)
+          this.frames = this.states.run.frames;
+          this.image = this.states.run.image;
+          this.currentFrame = 0;
+          //makes sure there are no frame overlaps when switching animations (resulting in blank flashes)
+        }
+        break;
+      case "walking":
+        if (this.image !== this.states.walking.image) {
+          this.frames = this.states.walking.frames;
+          this.image = this.states.walking.image;
+          this.currentFrame = 0;
+        }
+        break;
+      case "jumping":
+        if (this.image !== this.states.jumping.image) {
+          this.frames = this.states.jumping.frames;
+          this.image = this.states.jumping.image;
+          this.currentFrame = 0;
+        }
+        break;
+      case "attack":
+        break;
+      case "falling":
+        if (this.image !== this.states.falling.image) {
+          this.frames = this.states.falling.frames;
+          this.image = this.states.falling.image;
+          this.currentFrame = 0;
+        }
+        break;
+      case "getHit":
+        break;
+      case "death":
+    }
   }
 }

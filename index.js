@@ -7,7 +7,7 @@ canvas.height = 576;
 context.fillRect(0, 0, canvas.width, canvas.height);
 
 let gameOver = false;
-let timer = 100;
+let timer = 61;
 let clock;
 const gravity = 0.9;
 // future horizontal movement const shift = 1;
@@ -106,6 +106,28 @@ const player1 = new PlayerCharacter({
     y: -103,
   },
   framesDelay: 7,
+  states: {
+    idle: {
+      imageSrc: "./img/Character/Idle.png",
+      frames: 10,
+    },
+    run: {
+      imageSrc: "./img/Character/Run.png",
+      frames: 8,
+    },
+    jumping: {
+      imageSrc: "./img/Character/Jump.png",
+      frames: 3,
+    },
+    falling: {
+      imageSrc: "./img/Character/Fall.png",
+      frames: 3,
+    },
+    walking: {
+      imageSrc: "./img/Character/Walk.png",
+      frames: 8,
+    },
+  },
 });
 
 const player2 = new PlayerCharacter({
@@ -229,11 +251,32 @@ function animate() {
   //player 1 movement
   if (player1.knockback === false) {
     if (keys.a.pressed && player1.lastKey === "a") {
-      player1.velocity.x = -6;
+      if (
+        player1.position.x + (player1.width % 2) <
+        player2.position.x + (player2.width % 2)
+      ) {
+        player1.velocity.x = -4;
+        player1.switchState("walking");
+      } else {
+        player1.velocity.x = -6;
+        player1.switchState("run");
+      }
     } else if (keys.d.pressed && player1.lastKey === "d") {
-      player1.velocity.x = 6;
-    }
+      if (
+        player1.position.x + (player1.width % 2) <
+        player2.position.x + (player2.width % 2)
+      ) {
+        player1.velocity.x = 6;
+        player1.switchState("run");
+      } else {
+        player1.velocity.x = 4;
+        player1.switchState("walking");
+      }
+    } else player1.switchState("idle");
   }
+  if (player1.velocity.y < 0) player1.switchState("jumping");
+  if (player1.velocity.y > 0) player1.switchState("falling");
+  // for later, if (player1.knockback === true){player1.switchState("getHit")}
   //player 2 movement
   if (player2.knockback === false) {
     if (keys.ArrowLeft.pressed && player2.lastKey === "ArrowLeft") {
