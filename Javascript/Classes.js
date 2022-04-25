@@ -260,7 +260,7 @@ class PlayerCharacter extends Sprite {
           this.frames = this.states.death.frames;
           this.image = this.states.death.image;
           this.currentFrame = 0;
-          if (this.currentFrame === this.states.death.frames) this.dead = true;
+          setTimeout(() => (this.dead = true), 1020);
         }
     }
   }
