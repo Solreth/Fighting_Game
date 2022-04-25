@@ -53,8 +53,7 @@ class Sprite {
     }
   }
 
-  update() {
-    this.create();
+  animateFrame() {
     this.framesElapsed++;
     if (this.framesElapsed % this.framesDelay === 0) {
       if (this.currentFrame < this.frames - 1) {
@@ -63,6 +62,11 @@ class Sprite {
         this.currentFrame = 0;
       }
     }
+  }
+
+  update() {
+    this.create();
+    this.animateFrame();
   }
 }
 
@@ -120,14 +124,7 @@ class PlayerCharacter extends Sprite {
 
     if (!this.dead) {
       // pushes frames forward in animation, based on division of current passed frames by delay returning a remainder of 0
-      this.framesElapsed++;
-      if (this.framesElapsed % this.framesDelay === 0) {
-        if (this.currentFrame < this.frames - 1) {
-          this.currentFrame++;
-        } else {
-          this.currentFrame = 0;
-        }
-      }
+      this.animateFrame();
     }
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
@@ -211,11 +208,27 @@ class PlayerCharacter extends Sprite {
           this.currentFrame = 0;
         }
         break;
+      case "idleOpposite":
+        if (this.image !== this.states.idleOpposite.image) {
+          this.image = this.states.idleOpposite.image;
+          this.frames = this.states.idleOpposite.frames;
+          this.currentFrame = 0;
+        }
+        break;
       case "run":
         if (this.image !== this.states.run.image) {
           //sets the src image of the respective model (and the images frames)
           this.frames = this.states.run.frames;
           this.image = this.states.run.image;
+          this.currentFrame = 0;
+          //makes sure there are no frame overlaps when switching animations (resulting in blank flashes)
+        }
+        break;
+      case "runOpposite":
+        if (this.image !== this.states.runOpposite.image) {
+          //sets the src image of the respective model (and the images frames)
+          this.frames = this.states.runOpposite.frames;
+          this.image = this.states.runOpposite.image;
           this.currentFrame = 0;
           //makes sure there are no frame overlaps when switching animations (resulting in blank flashes)
         }
@@ -227,10 +240,25 @@ class PlayerCharacter extends Sprite {
           this.currentFrame = 0;
         }
         break;
+
+      case "walkingOpposite":
+        if (this.image !== this.states.walkingOpposite.image) {
+          this.frames = this.states.walkingOpposite.frames;
+          this.image = this.states.walkingOpposite.image;
+          this.currentFrame = 0;
+        }
+        break;
       case "jumping":
         if (this.image !== this.states.jumping.image) {
           this.frames = this.states.jumping.frames;
           this.image = this.states.jumping.image;
+          this.currentFrame = 0;
+        }
+        break;
+      case "jumpingOpposite":
+        if (this.image !== this.states.jumpingOpposite.image) {
+          this.frames = this.states.jumpingOpposite.frames;
+          this.image = this.states.jumpingOpposite.image;
           this.currentFrame = 0;
         }
         break;
@@ -245,6 +273,13 @@ class PlayerCharacter extends Sprite {
         if (this.image !== this.states.falling.image) {
           this.frames = this.states.falling.frames;
           this.image = this.states.falling.image;
+          this.currentFrame = 0;
+        }
+        break;
+      case "fallingOpposite":
+        if (this.image !== this.states.fallingOpposite.image) {
+          this.frames = this.states.fallingOpposite.frames;
+          this.image = this.states.fallingOpposite.image;
           this.currentFrame = 0;
         }
         break;

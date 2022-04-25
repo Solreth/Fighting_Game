@@ -111,20 +111,40 @@ const player1 = new PlayerCharacter({
       imageSrc: "./img/Character/Idle.png",
       frames: 10,
     },
+    idleOpposite: {
+      imageSrc: "./img/Character/IdleOpposite.png",
+      frames: 10,
+    },
     run: {
       imageSrc: "./img/Character/Run.png",
+      frames: 8,
+    },
+    runOpposite: {
+      imageSrc: "./img/Character/RunOpposite.png",
       frames: 8,
     },
     jumping: {
       imageSrc: "./img/Character/Jump.png",
       frames: 3,
     },
+    jumpingOpposite: {
+      imageSrc: "./img/Character/JumpOpposite.png",
+      frames: 3,
+    },
     falling: {
       imageSrc: "./img/Character/Fall.png",
       frames: 3,
     },
+    fallingOpposite: {
+      imageSrc: "./img/Character/FallOpposite.png",
+      frames: 3,
+    },
     walking: {
       imageSrc: "./img/Character/Walk.png",
+      frames: 8,
+    },
+    walkingOpposite: {
+      imageSrc: "./img/Character/WalkOpposite.png",
       frames: 8,
     },
     attacking: {
@@ -301,6 +321,7 @@ function animate() {
   //player 1 movement
   if (player1.knockback === false) {
     if (keys.a.pressed && player1.lastKey === "a") {
+      // if player1 is on the left side of player 2's center
       if (
         player1.position.x + (player1.width % 2) <
         player2.position.x + (player2.width % 2)
@@ -309,7 +330,7 @@ function animate() {
         player1.switchState("walking");
       } else {
         player1.velocity.x = -6;
-        player1.switchState("run");
+        player1.switchState("runOpposite");
       }
     } else if (keys.d.pressed && player1.lastKey === "d") {
       if (
@@ -320,14 +341,35 @@ function animate() {
         player1.switchState("run");
       } else {
         player1.velocity.x = 4.5;
-        player1.switchState("walking");
+        player1.switchState("walkingOpposite");
       }
-    } else if (player1.health > 0) player1.switchState("idle");
+    } else if (
+      player1.position.x + (player1.width % 2) <
+      player2.position.x + (player2.width % 2)
+    ) {
+      if (player1.health > 0) player1.switchState("idle");
+    } else if (player1.health > 0) player1.switchState("idleOpposite");
   }
-  if (player1.velocity.y < 0 && player1.health > 0)
-    player1.switchState("jumping");
-  if (player1.velocity.y > 0 && player1.health > 0)
-    player1.switchState("falling");
+
+  //if player is accelerating vertically, depending on direction faced choose the jump animation
+  if (player1.velocity.y < 0 && player1.health > 0) {
+    if (
+      player1.position.x + (player1.width % 2) <
+      player2.position.x + (player2.width % 2)
+    ) {
+      player1.switchState("jumping");
+    } else player1.switchState("jumpingOpposite");
+  }
+
+  // same as above but for deceleration
+  if (player1.velocity.y > 0 && player1.health > 0) {
+    if (
+      player1.position.x + (player1.width % 2) <
+      player2.position.x + (player2.width % 2)
+    ) {
+      player1.switchState("falling");
+    } else player1.switchState("fallingOpposite");
+  }
   // for later, if (player1.knockback === true){player1.switchState("getHit")}
 
   //player 2 movement
