@@ -87,7 +87,7 @@ class PlayerCharacter extends Sprite {
     // potential solution, if no movement option valid, then last key pressed = last lastkey pressed
     this.lastKey;
     this.knockback = false;
-    //considering increasing horizontal velocity off double jump
+    //considering increasing horizontal velocity off double jump, tbd
     this.doubleJump = false;
     this.basicAttackBox = {
       position: {
