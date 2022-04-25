@@ -392,7 +392,11 @@ function animate() {
     player1.isAttacking = false;
     player2.takeHit();
     player2.knockback = true;
+    //handles a glitch where a hitbox lingers in front of the target if they attack during hitstun
     player2.isAttacking = false;
+    setTimeout(() => {
+      player2.isAttacking = false;
+    }, 385);
     setTimeout(() => {
       player2.knockback = false;
     }, 385);
@@ -428,6 +432,9 @@ function animate() {
     player1.takeHit();
     player1.knockback = true;
     player1.isAttacking = false;
+    setTimeout(() => {
+      player1.isAttacking = false;
+    }, 385);
     setTimeout(() => {
       player1.knockback = false;
     }, 385);
