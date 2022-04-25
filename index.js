@@ -131,6 +131,14 @@ const player1 = new PlayerCharacter({
       imageSrc: "./img/Character/Attack1.png",
       frames: 8,
     },
+    getHit: {
+      imageSrc: "./img/Character/GetHit.png",
+      frames: 3,
+    },
+    death: {
+      imageSrc: "./img/Character/Death.png",
+      frames: 10,
+    },
   },
 });
 
@@ -180,6 +188,14 @@ const player2 = new PlayerCharacter({
     attacking: {
       imageSrc: "./img/Character/Attack1P2.png",
       frames: 8,
+    },
+    getHit: {
+      imageSrc: "./img/Character/GetHit2.png",
+      frames: 3,
+    },
+    death: {
+      imageSrc: "./img/Character/Death2.png",
+      frames: 10,
     },
   },
 });
@@ -276,13 +292,6 @@ function animate() {
   player1.update();
   player2.update();
 
-  // console.log("player 1 knockbackstate is", player1.knockback);
-  // console.log("player 1 current frame is", player1.currentFrame);
-  //console.log("frame cap is", player1.states.attacking.frames - 1);
-
-  //console.log("player 2 knockbackstate is", player2.knockback);
-  //console.log("player 2 current frame is", player2.currentFrame);
-  //console.log("frame cap is", player2.states.attacking.frames - 1);
   if (player1.knockback === false) player1.velocity.x = 0;
   if (player2.knockback === false) player2.velocity.x = 0;
 
@@ -310,10 +319,12 @@ function animate() {
         player1.velocity.x = 4.5;
         player1.switchState("walking");
       }
-    } else player1.switchState("idle");
+    } else if (player1.health > 0) player1.switchState("idle");
   }
-  if (player1.velocity.y < 0) player1.switchState("jumping");
-  if (player1.velocity.y > 0) player1.switchState("falling");
+  if (player1.velocity.y < 0 && player1.health > 0)
+    player1.switchState("jumping");
+  if (player1.velocity.y > 0 && player1.health > 0)
+    player1.switchState("falling");
   // for later, if (player1.knockback === true){player1.switchState("getHit")}
 
   //player 2 movement
@@ -340,10 +351,13 @@ function animate() {
         player2.velocity.x = 4.5;
         player2.switchState("walking");
       }
-    } else player2.switchState("idle");
+    } else if (player2.health > 0) player2.switchState("idle");
   }
-  if (player2.velocity.y < 0) player2.switchState("jumping");
-  if (player2.velocity.y > 0) player2.switchState("falling");
+
+  if (player2.velocity.y < 0 && player2.health > 0)
+    player2.switchState("jumping");
+  if (player2.velocity.y > 0 && player2.health > 0)
+    player2.switchState("falling");
 
   //mirrored
   //hitbox position relative to other player
@@ -363,7 +377,7 @@ function animate() {
     player2.basicAttackBox.offset.x = 0;
   } else player2.basicAttackBox.offset.x = -100;
 
-  // check for collision
+  // check for collision && hit state
 
   //mirrored
   // player1
@@ -373,9 +387,8 @@ function animate() {
     player1.currentFrame === 4
   ) {
     player1.isAttacking = false;
-    player2.health -= 20;
+    player2.takeHit();
     player2.knockback = true;
-    player2.isAttacking = false;
     setTimeout(() => {
       player2.knockback = false;
     }, 385);
@@ -403,9 +416,8 @@ function animate() {
     player2.currentFrame === 4
   ) {
     player2.isAttacking = false;
-    player1.health -= 20;
+    player1.takeHit();
     player1.knockback = true;
-    player1.isAttacking = false;
     setTimeout(() => {
       player1.knockback = false;
     }, 385);

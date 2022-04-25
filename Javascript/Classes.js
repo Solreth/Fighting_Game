@@ -101,6 +101,7 @@ class PlayerCharacter extends Sprite {
     this.lastTime = 0;
     this.isAttacking;
     this.health = 100;
+    this.dead = false;
 
     for (const state in this.states) {
       states[state].image = new Image();
@@ -117,15 +118,17 @@ class PlayerCharacter extends Sprite {
     this.basicAttackBox.position.y =
       this.position.y + this.basicAttackBox.offset.y;
 
-    this.framesElapsed++;
-    if (this.framesElapsed % this.framesDelay === 0) {
-      if (this.currentFrame < this.frames - 1) {
-        this.currentFrame++;
-      } else {
-        this.currentFrame = 0;
+    if (!this.dead) {
+      // pushes frames forward in animation, based on division of current passed frames by delay returning a remainder of 0
+      this.framesElapsed++;
+      if (this.framesElapsed % this.framesDelay === 0) {
+        if (this.currentFrame < this.frames - 1) {
+          this.currentFrame++;
+        } else {
+          this.currentFrame = 0;
+        }
       }
     }
-
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -164,19 +167,34 @@ class PlayerCharacter extends Sprite {
       this.lastTime = now;
     }
     //initiates the hitbox
-    this.switchState("attacking");
-    this.isAttacking = true;
+    if (player1.health > 0) {
+      this.switchState("attacking");
+      this.isAttacking = true;
+    }
+  }
+
+  takeHit() {
+    this.health -= 20;
+    if (this.health <= 0) {
+      this.switchState("death");
+    } else this.switchState("getHit");
   }
 
   switchState(state) {
-    //kills the rest of the switch if the user is currently attack, preventing auto-return to idle until all frames have completed)
-    if (this.image === this.states.attacking.image && this.currentFrame < 7) {
-      if (player1.image === player1.states.attacking.image) {
-        //console.log("Player1 current frame is:", player1.currentFrame);
-      }
-      if (player2.image === player2.states.attacking.image) {
-        //console.log("Player2 current frame is:", player2.currentFrame);
-      }
+    //everything above the switch is designed to override it
+
+    if (
+      this.image === this.states.getHit.image &&
+      this.currentFrame < this.states.getHit.frames - 1
+    ) {
+      return;
+    }
+
+    if (
+      this.image === this.states.attacking.image &&
+      this.currentFrame < this.states.attacking.frames - 1 &&
+      this.health > 0
+    ) {
       //plants your attack if grounded
       if (this.velocity.y === 0) {
         this.velocity.x = 0;
@@ -184,6 +202,7 @@ class PlayerCharacter extends Sprite {
       this.framesDelay = 4;
       return;
     } else this.framesDelay = 7;
+
     switch (state) {
       case "idle":
         if (this.image !== this.states.idle.image) {
@@ -230,8 +249,19 @@ class PlayerCharacter extends Sprite {
         }
         break;
       case "getHit":
+        if (this.image !== this.states.getHit.image) {
+          this.frames = this.states.getHit.frames;
+          this.image = this.states.getHit.image;
+          this.currentFrame = 0;
+        }
         break;
       case "death":
+        if (this.image !== this.states.death.image) {
+          this.frames = this.states.death.frames;
+          this.image = this.states.death.image;
+          this.currentFrame = 0;
+          setTimeout(() => (this.dead = true), 1020);
+        }
     }
   }
 }
