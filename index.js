@@ -288,6 +288,9 @@ function animate() {
   torch_background2.update();
   torch2.update();
   foreground2.update();
+  //creates contrast between player models and background
+  context.fillStyle = "rgba(255,255,255,0.05)";
+  context.fillRect(0, 0, canvas.width, canvas.height);
   UI_clock.update();
   player1.update();
   player2.update();
@@ -400,7 +403,12 @@ function animate() {
       player2.velocity.x = 10;
     } else player2.velocity.x = -10;
 
-    document.querySelector("#player2Health").style.width = `${player2.health}%`;
+    //gsap dependency animates the bar downward.
+    //Without gsap, a query selector and width reduction by percent on the style would be fine.
+
+    gsap.to("#player2Health", {
+      width: player2.health + "%",
+    });
     console.log("Player 1 injected you with the boo boo sauce :(");
   }
 
@@ -429,7 +437,9 @@ function animate() {
       player1.velocity.x = 10;
     } else player1.velocity.x = -10;
 
-    document.querySelector("#player1Health").style.width = `${player1.health}%`;
+    gsap.to("#player1Health", {
+      width: player1.health + "%",
+    });
     console.log("Player 2 loaned you a premium ouchie with only 3.5% APR!");
   }
 
