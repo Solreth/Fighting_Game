@@ -151,6 +151,10 @@ const player1 = new PlayerCharacter({
       imageSrc: "./img/Character/Attack1.png",
       frames: 8,
     },
+    attackingOpposite: {
+      imageSrc: "./img/Character/Attack1Opposite.png",
+      frames: 8,
+    },
     getHit: {
       imageSrc: "./img/Character/GetHit.png",
       frames: 3,
@@ -175,7 +179,7 @@ const player2 = new PlayerCharacter({
     x: -70,
     y: 24,
   },
-  imageSrc: "./img/Character/Idle2Left.png",
+  imageSrc: "./img/Character/Idle2.png",
   frames: 10,
   scale: 1.35,
   playerOffset: {
@@ -185,28 +189,51 @@ const player2 = new PlayerCharacter({
   framesDelay: 7,
   states: {
     idle: {
-      imageSrc: "./img/Character/Idle2Left.png",
+      imageSrc: "./img/Character/Idle2.png",
+      frames: 10,
+    },
+    idleOpposite: {
+      imageSrc: "./img/Character/Idle2Opposite.png",
       frames: 10,
     },
     run: {
       imageSrc: "./img/Character/Run2.png",
       frames: 8,
     },
+    runOpposite: {
+      imageSrc: "./img/Character/Run2Opposite.png",
+      frames: 8,
+    },
     jumping: {
       imageSrc: "./img/Character/Jump2.png",
+      frames: 3,
+    },
+    jumpingOpposite: {
+      imageSrc: "./img/Character/Jump2Opposite.png",
       frames: 3,
     },
     falling: {
       imageSrc: "./img/Character/Fall2.png",
       frames: 3,
     },
+    fallingOpposite: {
+      imageSrc: "./img/Character/Fall2Opposite.png",
+      frames: 3,
+    },
     walking: {
       imageSrc: "./img/Character/Walk2.png",
       frames: 8,
     },
-
+    walkingOpposite: {
+      imageSrc: "./img/Character/Walk2Opposite.png",
+      frames: 8,
+    },
     attacking: {
       imageSrc: "./img/Character/Attack1P2.png",
+      frames: 8,
+    },
+    attackingOpposite: {
+      imageSrc: "./img/Character/Attack1P2Opposite.png",
       frames: 8,
     },
     getHit: {
@@ -370,7 +397,6 @@ function animate() {
       player1.switchState("falling");
     } else player1.switchState("fallingOpposite");
   }
-  // for later, if (player1.knockback === true){player1.switchState("getHit")}
 
   //player 2 movement
   if (player2.knockback === false) {
@@ -380,7 +406,7 @@ function animate() {
         player1.position.x + (player1.width % 2)
       ) {
         player2.velocity.x = -4.5;
-        player2.switchState("walking");
+        player2.switchState("walkingOpposite");
       } else {
         player2.velocity.x = -6;
         player2.switchState("run");
@@ -391,18 +417,37 @@ function animate() {
         player1.position.x + (player1.width % 2)
       ) {
         player2.velocity.x = 6;
-        player2.switchState("run");
+        player2.switchState("runOpposite");
       } else {
         player2.velocity.x = 4.5;
         player2.switchState("walking");
       }
+    } else if (
+      player2.position.x + (player2.width % 2) <
+      player1.position.x + (player1.width % 2)
+    ) {
+      if (player2.health > 0) player2.switchState("idleOpposite");
     } else if (player2.health > 0) player2.switchState("idle");
   }
 
-  if (player2.velocity.y < 0 && player2.health > 0)
-    player2.switchState("jumping");
-  if (player2.velocity.y > 0 && player2.health > 0)
-    player2.switchState("falling");
+  if (player2.velocity.y < 0 && player2.health > 0) {
+    if (
+      player2.position.x + (player2.width % 2) <
+      player1.position.x + (player1.width % 2)
+    ) {
+      player2.switchState("jumpingOpposite");
+    } else player2.switchState("jumping");
+  }
+
+  // same as above but for deceleration
+  if (player2.velocity.y > 0 && player2.health > 0) {
+    if (
+      player2.position.x + (player2.width % 2) <
+      player1.position.x + (player1.width % 2)
+    ) {
+      player2.switchState("fallingOpposite");
+    } else player2.switchState("falling");
+  }
 
   //mirrored
   //hitbox position relative to other player
