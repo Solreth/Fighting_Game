@@ -115,7 +115,7 @@ class PlayerCharacter extends Sprite {
 
   update() {
     this.create();
-
+    //console.log(player1.currentFrame);
     this.basicAttackBox.position.x =
       this.position.x + this.basicAttackBox.offset.x;
 
@@ -164,8 +164,10 @@ class PlayerCharacter extends Sprite {
       this.lastTime = now;
     }
     //initiates the hitbox
-    this.isAttacking = true;
-    if (this.health > 0) this.switchState("attacking");
+    if (this.health > 0) {
+      this.isAttacking = true;
+      this.switchState("attacking");
+    }
   }
 
   attackOpposite() {
@@ -183,13 +185,28 @@ class PlayerCharacter extends Sprite {
 
   takeHit() {
     this.health -= 20;
-    if (this.health <= 0) {
-      this.switchState("death");
-    } else this.switchState("getHit");
+    this.switchState("getHit");
   }
 
   switchState(state) {
     //everything above the switch is designed to override it
+
+    /*
+    
+    current issue is that current frames on start of death animation 
+    is starting at 4 for an unknown reason, causing the timing of this.dead to fall off mark
+
+    
+    if (player1.image === player1.states.getHit.image) console.log("Got Hit!");
+    this.currentFrame === 0;
+    if (player1.image === player1.states.death.image) {
+      console.log("Very True");
+      console.log(this.currentFrame);
+      console.log("Player1 max frames are:", player1.states.death.frames - 1);
+      if (this.currentFrame === player1.states.death.frames - 1) {
+        return (player1.dead = true);
+      }
+    }*/
 
     if (
       this.image === this.states.getHit.image &&
@@ -200,7 +217,8 @@ class PlayerCharacter extends Sprite {
     //attack override
     if (
       this.image === this.states.attacking.image &&
-      this.currentFrame < this.states.attacking.frames - 1
+      this.currentFrame < this.states.attacking.frames - 1 &&
+      this.health > 0
     ) {
       //plants your attack if grounded
       if (this.velocity.y === 0) {
@@ -212,7 +230,8 @@ class PlayerCharacter extends Sprite {
     // opposite attack override
     if (
       this.image === this.states.attackingOpposite.image &&
-      this.currentFrame < this.states.attackingOpposite.frames - 1
+      this.currentFrame < this.states.attackingOpposite.frames - 1 &&
+      this.health > 0
     ) {
       //plants your attack if grounded
       if (this.velocity.y === 0) {
@@ -224,7 +243,7 @@ class PlayerCharacter extends Sprite {
 
     switch (state) {
       case "idle":
-        if (this.image !== this.states.idle.image) {
+        if (this.image !== this.states.idle.image && this.health) {
           this.image = this.states.idle.image;
           this.frames = this.states.idle.frames;
           this.currentFrame = 0;
@@ -285,7 +304,9 @@ class PlayerCharacter extends Sprite {
         }
         break;
       case "attacking":
-        if (this.image !== this.states.attacking.image) {
+        if (this.health <= 0) {
+          this.switchstate("death");
+        } else if (this.image !== this.states.attacking.image) {
           this.frames = this.states.attacking.frames;
           this.image = this.states.attacking.image;
           this.currentFrame = 0;
@@ -313,11 +334,14 @@ class PlayerCharacter extends Sprite {
         }
         break;
       case "getHit":
-        if (this.image !== this.states.getHit.image) {
+        if (this.health <= 0) {
+          this.switchState("death");
+        } else if (this.image !== this.states.getHit.image) {
           this.frames = this.states.getHit.frames;
           this.image = this.states.getHit.image;
           this.currentFrame = 0;
         }
+
         break;
       case "death":
         if (this.image !== this.states.death.image) {
