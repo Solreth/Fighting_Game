@@ -165,9 +165,20 @@ class PlayerCharacter extends Sprite {
     }
     //initiates the hitbox
     this.isAttacking = true;
-    if (player1.health > 0) {
-      this.switchState("attacking");
-    } else this.switchState("attackingOpposite");
+    if (this.health > 0) this.switchState("attacking");
+  }
+
+  attackOpposite() {
+    const now = new Date().getTime(); // Time in milliseconds
+
+    if (now - this.lastTime < 825) {
+      return;
+    } else {
+      this.lastTime = now;
+    }
+    //initiates the hitbox
+    this.isAttacking = true;
+    if (this.health > 0) this.switchState("attackingOpposite");
   }
 
   takeHit() {
@@ -186,10 +197,22 @@ class PlayerCharacter extends Sprite {
     ) {
       return;
     }
-
+    //attack override
     if (
       this.image === this.states.attacking.image &&
       this.currentFrame < this.states.attacking.frames - 1
+    ) {
+      //plants your attack if grounded
+      if (this.velocity.y === 0) {
+        this.velocity.x = 0;
+      } //speeds up the attack visually, independent from the other animations
+      this.framesDelay = 4;
+      return;
+    } else this.framesDelay = 7;
+    // opposite attack override
+    if (
+      this.image === this.states.attackingOpposite.image &&
+      this.currentFrame < this.states.attackingOpposite.frames - 1
     ) {
       //plants your attack if grounded
       if (this.velocity.y === 0) {

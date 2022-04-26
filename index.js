@@ -579,7 +579,12 @@ window.addEventListener("keydown", ({ key }) => {
         player1.doubleJump = false;
         break;
       case " ":
-        player1.attack();
+        if (
+          player1.position.x + (player1.width % 2) <
+          player2.position.x + (player2.width % 2)
+        ) {
+          player1.attack();
+        } else player1.attackOpposite();
         break;
 
       //player 2
@@ -605,7 +610,12 @@ window.addEventListener("keydown", ({ key }) => {
         player2.doubleJump = false;
         break;
       case "ArrowDown":
-        player2.attack();
+        if (
+          player1.position.x + (player1.width % 2) <
+          player2.position.x + (player2.width % 2)
+        ) {
+          player2.attack();
+        } else player2.attackOpposite();
         break;
     }
   }
