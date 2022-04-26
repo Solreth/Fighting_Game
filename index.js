@@ -10,7 +10,7 @@ let gameOver = false;
 let timer = 61;
 let clock;
 const gravity = 0.9;
-const FPS = 70;
+const FPS = 80;
 // future horizontal movement const shift = 1; tbd
 
 const background = new Sprite({
