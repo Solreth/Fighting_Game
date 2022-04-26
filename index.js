@@ -10,6 +10,7 @@ let gameOver = false;
 let timer = 61;
 let clock;
 const gravity = 0.9;
+const FPS = 70;
 // future horizontal movement const shift = 1; tbd
 
 const background = new Sprite({
@@ -325,7 +326,10 @@ clockDecrease();
 
 //creates an infinite loop of requesting animation frames
 function animate() {
-  window.requestAnimationFrame(animate);
+  // makes sure top-end computers animate at the same speed
+  setTimeout(() => {
+    window.requestAnimationFrame(animate);
+  }, 1000 / FPS);
   //updates the position and status of players it creates
   background.update();
   background2.update();
@@ -505,7 +509,7 @@ function animate() {
   }
 
   //factors a miss
-  if (player1.isAttacking && player1.currentFrame === 5) {
+  if (player1.isAttacking && player1.currentFrame === 6) {
     player1.isAttacking = false;
   }
 
@@ -540,7 +544,7 @@ function animate() {
   }
 
   //factors a miss
-  if (player2.isAttacking && player2.currentFrame === 5) {
+  if (player2.isAttacking && player2.currentFrame === 6) {
     player2.isAttacking = false;
   }
 

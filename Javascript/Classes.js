@@ -100,7 +100,7 @@ class PlayerCharacter extends Sprite {
       },
       offset,
       width: 170,
-      height: 60,
+      height: 75,
     };
     this.lastTime = 0;
     this.isAttacking;
@@ -193,8 +193,8 @@ class PlayerCharacter extends Sprite {
 
     /*
     
-    current issue is that current frames on start of death animation 
-    is starting at 4 for an unknown reason, causing the timing of this.dead to fall off mark
+    current issue is that current frames on start of death animation is starting at 4 and counting upwards before ending precisely on 7 
+    for an unknown reason, causing the timing of this.dead to fall off mark
 
     
     if (player1.image === player1.states.getHit.image) console.log("Got Hit!");
