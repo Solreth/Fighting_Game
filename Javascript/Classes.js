@@ -195,18 +195,21 @@ class PlayerCharacter extends Sprite {
     
     current issue is that current frames on start of death animation is starting at 4 and counting upwards before ending precisely on 7 
     for an unknown reason, causing the timing of this.dead to fall off mark
+    */
 
-    
-    if (player1.image === player1.states.getHit.image) console.log("Got Hit!");
-    this.currentFrame === 0;
     if (player1.image === player1.states.death.image) {
-      console.log("Very True");
-      console.log(this.currentFrame);
-      console.log("Player1 max frames are:", player1.states.death.frames - 1);
-      if (this.currentFrame === player1.states.death.frames - 1) {
+      this.currentFrame === 0;
+      if (player1.currentFrame === player1.states.death.frames - 1) {
         return (player1.dead = true);
       }
-    }*/
+    }
+
+    if (player2.image === player2.states.death.image) {
+      this.currentFrame === 0;
+      if (player2.currentFrame === player1.states.death.frames - 1) {
+        return (player2.dead = true);
+      }
+    }
 
     if (
       this.image === this.states.getHit.image &&
@@ -345,10 +348,9 @@ class PlayerCharacter extends Sprite {
         break;
       case "death":
         if (this.image !== this.states.death.image) {
+          this.currentFrame = 0;
           this.frames = this.states.death.frames;
           this.image = this.states.death.image;
-          this.currentFrame = 0;
-          setTimeout(() => (this.dead = true), 1020);
         }
     }
   }

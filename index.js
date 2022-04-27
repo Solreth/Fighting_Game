@@ -345,7 +345,7 @@ function animate() {
   UI_clock.update();
   player1.update();
   player2.update();
-
+  //console.log(player1.image);
   if (player1.knockback === false) player1.velocity.x = 0;
   if (player2.knockback === false) player2.velocity.x = 0;
 
